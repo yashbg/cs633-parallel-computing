@@ -57,7 +57,9 @@ int main(int argc, char *argv[]){
             MPI_Irecv(buf, recvcount, MPI_DOUBLE, myrank + 1, myrank, MPI_COMM_WORLD, &recv_request);
         }
 
-        MPI_Wait(&send_request, &send_status);
+        if(myrank > 0){
+            MPI_Wait(&send_request, &send_status);
+        }
 
         // updating all rows except last row
         for(long long i = 0; i < m - 1; i++){
@@ -67,7 +69,9 @@ int main(int argc, char *argv[]){
             }
         }
 
-        MPI_Wait(&recv_request, &recv_status);
+        if(myrank < py - 1){
+            MPI_Wait(&recv_request, &recv_status);
+        }
 
         // updating the last row
         if(myrank < py - 1){
