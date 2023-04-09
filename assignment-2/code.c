@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
 
     // 1D row-wise domain decomposition
 
-    long long m = size / py; // number of rows of matrix for each process
+    long long m = size / (py*px); // number of rows of matrix for each process
     double A1[m][size]; // sub-domain of the process
 
     srand(time(NULL));
