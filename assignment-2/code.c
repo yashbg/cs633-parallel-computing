@@ -6,14 +6,14 @@
 
 int main(int argc, char *argv[]){
     int myrank;
-    double stime, etime, proc_time, max_time;
+    double stime, etime, proc_time1, proc_time2, max_time1, max_time2;
     
     MPI_Init(&argc, &argv);
 
     assert(argc == 4);
-    int px = atoi(argv[1]);
-    int py = atoi(argv[2]);
-    long long size = atoll(argv[3]);
+    int px = atoi(argv[1]); // number of processes in x
+    int py = atoi(argv[2]); // number of processes in y
+    long long size = atoll(argv[3]); // total number of elements in a row/column of the matrix
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
     // 1D row-wise domain decomposition
 
     long long m = size / py; // number of rows of matrix for each process
-    double A1[m][size];
+    double A1[m][size]; // sub-domain of the process
 
     srand(time(NULL));
 
@@ -46,7 +46,6 @@ int main(int argc, char *argv[]){
     
     // updating the lower triangular matrix
     for(int t = 0; t < 20; t++){
-
         // sending elements of the first row to the previous process
         if(myrank > 0){
             MPI_Isend(A1[0], sendcount, MPI_DOUBLE, myrank - 1, myrank - 1, MPI_COMM_WORLD, &send_request);
@@ -82,12 +81,58 @@ int main(int argc, char *argv[]){
     }
 
     etime = MPI_Wtime();
-    proc_time = etime - stime;
+    proc_time1 = etime - stime;
 
-    MPI_Reduce(&proc_time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&proc_time1, &max_time1, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
     if(!myrank){
-        printf("1D row-wise domain decomposition time = %lf\n", max_time);
+        printf("1D row-wise domain decomposition time = %lf\n", max_time1);
+    }
+
+    // 2D domain decomposition
+
+    long long m = size / py; // number of rows of matrix for each process
+    long long n = size / px; // number of columns of matrix for each process
+    double A2[m][n]; // sub-domain of the process
+
+    // initializing the matrix
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            A2[i][j] = rand();
+        }
+    }
+    
+    int proc_row = myrank / px; // row of the process in the virtual topology
+    int proc_col = myrank % px; // column of the process in the virtual topology
+
+    stime = MPI_Wtime();
+
+    // updating the lower triangular matrix
+    for(int t = 0; t < 20; t++){
+        // updating all rows except last row
+        for(long long i = 0; i < m - 1; i++){
+            for(long long j = 0; j < n; j++){
+                long long elem_row = proc_row * m + i; // row of the element in the complete matrix
+                long long elem_col = proc_col * n + j; // column of the element in the complete matrix
+
+                // updating the element if it is in the lower triangular matrix
+                if(elem_row >= elem_col){
+                    A2[i][j] -= A2[i + 1][j];
+                }
+            }
+        }
+
+        // updating the last row
+
+    }
+
+    etime = MPI_Wtime();
+    proc_time2 = etime - stime;
+
+    MPI_Reduce(&proc_time2, &max_time2, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    if(!myrank){
+        printf("2D domain decomposition time = %lf\n", max_time2);
     }
 
     MPI_Finalize();
