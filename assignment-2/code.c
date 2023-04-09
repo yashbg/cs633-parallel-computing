@@ -91,7 +91,7 @@ int main(int argc, char *argv[]){
 
     // 2D domain decomposition
 
-    long long m = size / py; // number of rows of matrix for each process
+    m = size / py; // number of rows of matrix for each process
     long long n = size / px; // number of columns of matrix for each process
     double A2[m][n]; // sub-domain of the process
 
