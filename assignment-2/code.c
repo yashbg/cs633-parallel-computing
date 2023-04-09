@@ -37,27 +37,27 @@ int main(int argc, char *argv[]){
 
     long long sendcount = myrank * m;
     long long recvcount = (myrank + 1) * m;
-    double buf[recvcount];
+    double buf1[recvcount]; // receive buffer
 
-    MPI_Request send_request, recv_request;
-    MPI_Status send_status, recv_status;
+    MPI_Request send_request1, recv_request1;
+    MPI_Status send_status1, recv_status1;
 
     stime = MPI_Wtime();
     
     // updating the lower triangular matrix
     for(int t = 0; t < 20; t++){
-        // sending elements of the first row to the previous process
+        // sending elements of the first row to the above process
         if(myrank > 0){
-            MPI_Isend(A1[0], sendcount, MPI_DOUBLE, myrank - 1, myrank - 1, MPI_COMM_WORLD, &send_request);
+            MPI_Isend(A1[0], sendcount, MPI_DOUBLE, myrank - 1, myrank - 1, MPI_COMM_WORLD, &send_request1);
         }
 
-        // receiving elements of the first row of the next process
+        // receiving elements of the first row of the below process
         if(myrank < py - 1){
-            MPI_Irecv(buf, recvcount, MPI_DOUBLE, myrank + 1, myrank, MPI_COMM_WORLD, &recv_request);
+            MPI_Irecv(buf1, recvcount, MPI_DOUBLE, myrank + 1, myrank, MPI_COMM_WORLD, &recv_request1);
         }
 
         if(myrank > 0){
-            MPI_Wait(&send_request, &send_status);
+            MPI_Wait(&send_request1, &send_status1);
         }
 
         // updating all rows except last row
@@ -69,13 +69,13 @@ int main(int argc, char *argv[]){
         }
 
         if(myrank < py - 1){
-            MPI_Wait(&recv_request, &recv_status);
+            MPI_Wait(&recv_request1, &recv_status1);
         }
 
         // updating the last row
         if(myrank < py - 1){
             for(long long j = 0; j < recvcount; j++){
-                A1[m - 1][j] -= buf[j];
+                A1[m - 1][j] -= buf1[j];
             }
         }
     }
@@ -101,6 +101,11 @@ int main(int argc, char *argv[]){
             A2[i][j] = rand();
         }
     }
+
+    double buf2[n]; // receive buffer
+
+    MPI_Request send_request2, recv_request2;
+    MPI_Status send_status2, recv_status2;
     
     int proc_row = myrank / px; // row of the process in the virtual topology
     int proc_col = myrank % px; // column of the process in the virtual topology
@@ -109,6 +114,20 @@ int main(int argc, char *argv[]){
 
     // updating the lower triangular matrix
     for(int t = 0; t < 20; t++){
+        // sending elements of the first row to the above process
+        if(proc_row > 0){
+            MPI_Isend(A2[0], n, MPI_DOUBLE, myrank - px, myrank - px, MPI_COMM_WORLD, &send_request2);
+        }
+
+        // receiving elements of the first row of the below process
+        if(proc_row < py - 1){
+            MPI_Irecv(buf2, n, MPI_DOUBLE, myrank + px, myrank, MPI_COMM_WORLD, &recv_request2);
+        }
+
+        if(proc_row > 0){
+            MPI_Wait(&send_request2, &send_status2);
+        }
+
         // updating all rows except last row
         for(long long i = 0; i < m - 1; i++){
             for(long long j = 0; j < n; j++){
@@ -122,8 +141,22 @@ int main(int argc, char *argv[]){
             }
         }
 
-        // updating the last row
+        if(proc_row < py - 1){
+            MPI_Wait(&recv_request2, &recv_status2);
+        }
 
+        // updating the last row
+        if(proc_row < py - 1){
+            for(long long j = 0; j < n; j++){
+                long long elem_row = proc_row * m + (m - 1); // row of the element in the complete matrix
+                long long elem_col = proc_col * n + j; // column of the element in the complete matrix
+
+                // updating the element if it is in the lower triangular matrix
+                if(elem_row >= elem_col){
+                    A2[m - 1][j] -= buf2[j];
+                }
+            }
+        }
     }
 
     etime = MPI_Wtime();
