@@ -22,8 +22,8 @@ int main(int argc, char *argv[]){
     }
 
     // 1D row-wise domain decomposition
-
-    long long m = size / py; // number of rows of matrix for each process
+    int num_procs = px * py;
+    long long m = size / num_procs; // number of rows of matrix for each process
     double A1[m][size]; // sub-domain of the process
 
     srand(time(NULL));
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
         }
 
         // receiving elements of the first row of the below process
-        if(myrank < py - 1){
+        if(myrank < num_procs - 1){
             MPI_Irecv(buf1, recvcount, MPI_DOUBLE, myrank + 1, myrank, MPI_COMM_WORLD, &recv_request1);
         }
 
@@ -68,12 +68,12 @@ int main(int argc, char *argv[]){
             }
         }
 
-        if(myrank < py - 1){
+        if(myrank < num_procs - 1){
             MPI_Wait(&recv_request1, &recv_status1);
         }
 
         // updating the last row
-        if(myrank < py - 1){
+        if(myrank < num_procs - 1){
             for(long long j = 0; j < recvcount; j++){
                 A1[m - 1][j] -= buf1[j];
             }
