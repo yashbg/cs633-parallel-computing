@@ -78,6 +78,8 @@ int main(int argc, char *argv[]){
                 A1[m - 1][j] -= buf1[j];
             }
         }
+
+        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     etime = MPI_Wtime();
@@ -157,6 +159,8 @@ int main(int argc, char *argv[]){
                 }
             }
         }
+
+        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     etime = MPI_Wtime();
