@@ -1,0 +1,10 @@
+configuration px = 2, py = 2, size = 4096, runtime 1D = 0.090639, runtime 2D = 0.248546
+configuration px = 2, py = 2, size = 4096, runtime 1D = 0.090909, runtime 2D = 0.243276
+configuration px = 2, py = 2, size = 4096, runtime 1D = 0.088396, runtime 2D = 0.247384
+configuration px = 2, py = 2, size = 4096, runtime 1D = 0.091342, runtime 2D = 0.244385
+configuration px = 2, py = 2, size = 4096, runtime 1D = 0.089640, runtime 2D = 0.244828
+configuration px = 2, py = 4, size = 4096, runtime 1D = 0.092929, runtime 2D = 0.231672
+configuration px = 2, py = 4, size = 4096, runtime 1D = 0.116056, runtime 2D = 0.208990
+configuration px = 2, py = 4, size = 4096, runtime 1D = 0.063911, runtime 2D = 0.219623
+configuration px = 2, py = 4, size = 4096, runtime 1D = 0.105481, runtime 2D = 0.230549
+configuration px = 2, py = 4, size = 4096, runtime 1D = 0.080912, runtime 2D = 0.210423
