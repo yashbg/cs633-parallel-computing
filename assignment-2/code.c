@@ -15,6 +15,8 @@ int main(int argc, char *argv[]){
     int py = atoi(argv[2]); // number of processes in y
     long long size = atoll(argv[3]); // total number of elements in a row/column of the matrix
 
+    int num_iter = 10; // number of iterations
+
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
     if(!myrank){
@@ -35,8 +37,6 @@ int main(int argc, char *argv[]){
         }
     }
 
-    // long long sendcount = myrank * m;
-    // long long recvcount = (myrank + 1) * m;
     long long sendcount = size;
     long long recvcount = size;
     double buf1[recvcount]; // receive buffer
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
     stime = MPI_Wtime();
     
     // updating the lower triangular matrix
-    for(int t = 0; t < 20; t++){
+    for(int t = 0; t < num_iter; t++){
         // sending elements of the first row to the above process
         if(myrank > 0){
             MPI_Isend(A1[0], sendcount, MPI_DOUBLE, myrank - 1, myrank - 1, MPI_COMM_WORLD, &send_request1);
@@ -64,13 +64,12 @@ int main(int argc, char *argv[]){
 
         // updating all rows except last row
         for(long long i = 0; i < m - 1; i++){
-            // updating only the elements in the lower triangular matrix
             for(long long j = 0; j < size; j++){
-                long long proc_row = myrank*m + i;  // row of the element in the complete matrix
-                long long proc_col = j;  // column of the element in the complete matrix
+                long long elem_row = myrank * m + i; // row of the element in the complete matrix
+                long long elem_col = j; // column of the element in the complete matrix
 
-                if (proc_row >= proc_col)
-                {
+                // updating the element if it is in the lower triangular matrix
+                if(elem_row >= elem_col){
                     A1[i][j] -= A1[i + 1][j];
                 }
             }
@@ -82,12 +81,12 @@ int main(int argc, char *argv[]){
 
         // updating the last row
         if(myrank < num_procs - 1){
-            for(long long j = 0; j < recvcount; j++){
-                long long proc_row = myrank*m + (m-1);  // row of the element in the complete matrix
-                long long proc_col = j;  // column of the element in the complete matrix
+            for(long long j = 0; j < size; j++){
+                long long elem_row = myrank * m + (m - 1); // row of the element in the complete matrix
+                long long elem_col = j; // column of the element in the complete matrix
 
-                if (proc_row >= proc_col)
-                {
+                // updating the element if it is in the lower triangular matrix
+                if(elem_row >= elem_col){
                     A1[m - 1][j] -= buf1[j];
                 }
             }
@@ -129,7 +128,7 @@ int main(int argc, char *argv[]){
     stime = MPI_Wtime();
 
     // updating the lower triangular matrix
-    for(int t = 0; t < 20; t++){
+    for(int t = 0; t < num_iter; t++){
         // sending elements of the first row to the above process
         if(proc_row > 0){
             MPI_Isend(A2[0], n, MPI_DOUBLE, myrank - px, myrank - px, MPI_COMM_WORLD, &send_request2);
@@ -185,7 +184,7 @@ int main(int argc, char *argv[]){
     if(!myrank){
         printf("2D domain decomposition time = %lf\n", max_time2);
 
-        FILE* fptr = fopen("times.txt", "a");
+        FILE *fptr = fopen("times.txt", "a");
         fprintf(fptr, "configuration px = %d, py = %d, size = %lld, runtime 1D = %lf, runtime 2D = %lf\n", px, py, size, proc_time1, proc_time2);
         fclose(fptr);
     }
