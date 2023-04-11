@@ -1,4 +1,5 @@
 mpicc ./code.c -o code
+rm times.txt
 
 for i in $(seq 1 5)
 do 
