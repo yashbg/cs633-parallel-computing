@@ -19,10 +19,6 @@ int main(int argc, char *argv[]){
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
-    if(!myrank){
-        printf("px = %d, py = %d, size = %lld\n", px, py, size);
-    }
-
     // 1D row-wise domain decomposition
     int num_procs = px * py;
     long long m = size / num_procs; // number of rows of matrix for each process
@@ -99,10 +95,6 @@ int main(int argc, char *argv[]){
     proc_time1 = etime - stime;
 
     MPI_Reduce(&proc_time1, &max_time1, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-
-    if(!myrank){
-        printf("1D row-wise domain decomposition time = %lf\n", max_time1);
-    }
 
     // 2D domain decomposition
 

@@ -26,7 +26,7 @@ if __name__ == '__main__':
     for i, (config, val) in enumerate(runtimes2D.items()):
         plt.scatter([i for j in range(len(val))], val, label = f'2D config_{i}')
         
-    plt.xticks(ticks = range(2), labels = runtimes1D, rotation = 0)
+    plt.xticks(ticks = range(4), labels = runtimes1D, rotation = 0)
     plt.xlabel("Configurations")
     plt.ylabel("Runtime in seconds")
     plt.legend(bbox_to_anchor = (1,1))
