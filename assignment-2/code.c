@@ -35,8 +35,10 @@ int main(int argc, char *argv[]){
         }
     }
 
-    long long sendcount = myrank * m;
-    long long recvcount = (myrank + 1) * m;
+    // long long sendcount = myrank * m;
+    // long long recvcount = (myrank + 1) * m;
+    long long sendcount = size;
+    long long recvcount = size;
     double buf1[recvcount]; // receive buffer
 
     MPI_Request send_request1, recv_request1;
@@ -63,8 +65,14 @@ int main(int argc, char *argv[]){
         // updating all rows except last row
         for(long long i = 0; i < m - 1; i++){
             // updating only the elements in the lower triangular matrix
-            for(long long j = 0; j <= myrank * m + i; j++){
-                A1[i][j] -= A1[i + 1][j];
+            for(long long j = 0; j < size; j++){
+                long long proc_row = myrank*m + i;  // row of the element in the complete matrix
+                long long proc_col = j;  // column of the element in the complete matrix
+
+                if (proc_row >= proc_col)
+                {
+                    A1[i][j] -= A1[i + 1][j];
+                }
             }
         }
 
@@ -75,7 +83,13 @@ int main(int argc, char *argv[]){
         // updating the last row
         if(myrank < num_procs - 1){
             for(long long j = 0; j < recvcount; j++){
-                A1[m - 1][j] -= buf1[j];
+                long long proc_row = myrank*m + (m-1);  // row of the element in the complete matrix
+                long long proc_col = j;  // column of the element in the complete matrix
+
+                if (proc_row >= proc_col)
+                {
+                    A1[m - 1][j] -= buf1[j];
+                }
             }
         }
 
