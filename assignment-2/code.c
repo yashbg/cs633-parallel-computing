@@ -87,14 +87,14 @@ int main(int argc, char *argv[]){
                 }
             }
         }
-
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     etime = MPI_Wtime();
     proc_time1 = etime - stime;
 
     MPI_Reduce(&proc_time1, &max_time1, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     // 2D domain decomposition
 
@@ -164,8 +164,6 @@ int main(int argc, char *argv[]){
                 }
             }
         }
-
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     etime = MPI_Wtime();
