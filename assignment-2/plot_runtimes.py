@@ -27,14 +27,14 @@ if __name__ == '__main__':
     
     for i, (config, val) in enumerate(runtimes2D.items()):
         boxplot_2d_runtimes.append(val)
-        
-    plt.boxplot(boxplot_1d_runtimes)
-    plt.boxplot(boxplot_2d_runtimes)
     
-    plt.xticks(ticks = range(len(runtimes1D)+1), labels = [""] + [(px, py) for px, py, size in runtimes1D], rotation = 30)  # required to fix label alignment issue
+    bp1 = plt.boxplot(boxplot_1d_runtimes, positions=[1,2,1,2], patch_artist=True, boxprops=dict(facecolor="C0"))
+    bp2 = plt.boxplot(boxplot_2d_runtimes, positions=[1,2,1,2], patch_artist=True, boxprops=dict(facecolor="C2"))
+    
+    plt.xticks(ticks = range(3), labels = ["", (2,2), (2,4)], rotation = 30)  # required to fix label alignment issue
     plt.xlabel("Configurations")
     plt.ylabel("Runtime in seconds")
-    plt.legend(bbox_to_anchor = (1,1))
+    plt.legend([bp1["boxes"][0], bp2["boxes"][0]], ['1D', '2D'], bbox_to_anchor = (1,1))
     plt.title("Configuration Vs Runtime")
     plt.tight_layout()
     
