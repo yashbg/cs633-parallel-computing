@@ -174,11 +174,7 @@ int main(int argc, char *argv[]){
     MPI_Reduce(&proc_time2, &max_time2, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
     if(!myrank){
-        printf("2D domain decomposition time = %lf\n", max_time2);
-
-        FILE *fptr = fopen("times.txt", "a");
-        fprintf(fptr, "configuration px = %d, py = %d, size = %lld, runtime 1D = %lf, runtime 2D = %lf\n", px, py, size, proc_time1, proc_time2);
-        fclose(fptr);
+        printf("configuration px = %d, py = %d, size = %lld, runtime 1D = %lf, runtime 2D = %lf\n", px, py, size, proc_time1, proc_time2);
     }
 
     MPI_Finalize();
