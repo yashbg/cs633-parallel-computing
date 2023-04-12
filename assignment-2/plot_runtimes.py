@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+import os
+os.makedirs('./plots/', exist_ok=True)
 
 def add_entry(runtime_dict, px, py, size, time):
     if (px, py, size) not in runtime_dict:
@@ -45,7 +47,7 @@ if __name__ == '__main__':
     plt.title("Configuration Vs Runtime")
     plt.tight_layout()
     
-    plt.savefig('./runtimes.png', dpi=300)
+    plt.savefig('./plots/runtimes.png', dpi=300)
     plt.close()
     
     # plot of just size=4096 values 
@@ -59,7 +61,7 @@ if __name__ == '__main__':
     plt.title("Configuration Vs Runtime for data size = 4096")
     plt.tight_layout()
     
-    plt.savefig('./runtimes_size_4096.png', dpi=300)
+    plt.savefig('./plots/runtimes_size_4096.png', dpi=300)
     plt.close()
     
     
