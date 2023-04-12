@@ -20,13 +20,18 @@ if __name__ == '__main__':
         add_entry(runtimes1D, px, py, size, runtime1D)
         add_entry(runtimes2D, px, py, size, runtime2D)
 
+    boxplot_1d_runtimes = []
+    boxplot_2d_runtimes = []
     for i, (config, val) in enumerate(runtimes1D.items()):
-        plt.scatter([i for j in range(len(val))], val, label = f'1D config_{i}')
+        boxplot_1d_runtimes.append(val)
     
     for i, (config, val) in enumerate(runtimes2D.items()):
-        plt.scatter([i for j in range(len(val))], val, label = f'2D config_{i}')
+        boxplot_2d_runtimes.append(val)
         
-    plt.xticks(ticks = range(4), labels = runtimes1D, rotation = 0)
+    plt.boxplot(boxplot_1d_runtimes)
+    plt.boxplot(boxplot_2d_runtimes)
+    
+    plt.xticks(ticks = range(len(runtimes1D)+1), labels = [""] + [(px, py) for px, py, size in runtimes1D], rotation = 30)  # required to fix label alignment issue
     plt.xlabel("Configurations")
     plt.ylabel("Runtime in seconds")
     plt.legend(bbox_to_anchor = (1,1))
